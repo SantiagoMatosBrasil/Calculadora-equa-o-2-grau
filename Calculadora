@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Equação do 2º Grau - Next Level</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('1000124383.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: white;
+    }
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: flex-start;
+      padding: 40px;
+      gap: 40px;
+    }
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+    }
+    .panel {
+      background-color: rgba(0, 0, 0, 0.75);
+      border-radius: 20px;
+      padding: 30px;
+      width: 45%;
+      box-shadow: 0 0 20px cyan;
+    }
+    .panel h2 {
+      text-align: center;
+      color: cyan;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: cyan;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    pre {
+      white-space: pre-wrap;
+      font-size: 16px;
+    }
+    canvas {
+      width: 100%;
+      height: 300px;
+      background-color: #111;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <img src="1000124383.jpg" alt="Logo Next Level" class="logo" />
+
+  <div class="container">
+    <div class="panel">
+      <h2>Resolução</h2>
+      <input type="text" id="equacao" placeholder="Ex: 2x^2-3x+1" />
+      <button onclick="resolver()">Resolver</button>
+      <pre id="resultado"></pre>
+    </div>
+
+    <div class="panel">
+      <h2>Gráfico</h2>
+      <canvas id="grafico"></canvas>
+    </div>
+  </div>
+
+  <script>
+    function resolver() {
+      const input = document.getElementById('equacao').value.replace(/\s/g, '');
+      const regex = /^([+-]?\d*)x\^2([+-]?\d*)x([+-]?\d+)$/;
+      const match = input.match(regex);
+
+      if (!match) {
+        document.getElementById('resultado').innerText = 'Equação inválida. Use o formato: ax^2+bx+c';
+        return;
+      }
+
+      let a = match[1] === '' || match[1] === '+' ? 1 : match[1] === '-' ? -1 : parseInt(match[1]);
+      let b = match[2] === '' || match[2] === '+' ? 1 : match[2] === '-' ? -1 : parseInt(match[2]);
+      let c = parseInt(match[3]);
+
+      const delta = b * b - 4 * a * c;
+      let resultado = `Equação: ${a}x² + ${b}x + ${c} = 0\n\n1) Delta: Δ = ${b}² - 4·${a}·${c} = ${delta}`;
+
+      if (delta < 0) {
+        resultado += `\n2) A equação não possui raízes reais.`;
+      } else {
+        const x1 = ((-b + Math.sqrt(delta)) / (2 * a)).toFixed(2);
+        const x2 = ((-b - Math.sqrt(delta)) / (2 * a)).toFixed(2);
+        resultado += `\n2) Raízes:\n   x₁ = ${x1}\n   x₂ = ${x2}`;
+      }
+
+      const xv = (-b / (2 * a)).toFixed(2);
+      const yv = (-delta / (4 * a)).toFixed(2);
+      const concavidade = a > 0 ? 'para cima' : 'para baixo';
+
+      resultado += `\n3) Vértice:\n   x = ${xv}\n   y = ${yv}\n4) Concavidade: ${concavidade}`;
+      document.getElementById('resultado').innerText = resultado;
+
+      desenharGrafico(a, b, c);
+    }
+
+    function desenharGrafico(a, b, c) {
+      const canvas = document.getElementById('grafico');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = 'cyan';
+      ctx.lineWidth = 2;
+
+      const scale = 20;
+      const originX = canvas.width / 2;
+      const originY = canvas.height / 2;
+
+      ctx.beginPath();
+      for (let i = -canvas.width / 2; i < canvas.width / 2; i++) {
+        const x = i / scale;
+        const y = a * x * x + b * x + c;
+        const screenX = originX + x * scale;
+        const screenY = originY - y * scale;
+        if (i === -canvas.width / 2) ctx.moveTo(screenX, screenY);
+        else ctx.lineTo(screenX, screenY);
+      }
+      ctx.stroke();
+
+      // Eixos
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, originY);
+      ctx.lineTo(canvas.width, originY);
+      ctx.moveTo(originX, 0);
+      ctx.lineTo(originX, canvas.height);
+      ctx.stroke();
+    }
+  </script>
+</body>
+</html>
